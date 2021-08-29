@@ -1,23 +1,39 @@
-import logo from './logo.svg';
+import {useState} from 'react';
 import './App.css';
+import { createApi } from 'unsplash-js';
+import SearchBar from './components/SearchBar.jsx'
+import CardList from './components/CardList.jsx'
 
 function App() {
+
+  const unsplash = createApi({
+    accessKey: '824wWpPEQSwuzplgKu4nCmcRF55zVIMAyn7_8E7cepU'
+  });
+
+  const [searchText, setSearchText] = useState('')
+  const [pics, setPics] = useState([])
+
+  const searchPhotos = async (e) => {
+    if (e) {
+      e.preventDefault()
+    }
+    unsplash.search.getPhotos({query: searchText}).then(result => {
+      if(result.errors) {
+        //handle error here
+        console.log('error occurred: ', result.errors[0]);
+      } else {
+        // handle success here
+        const photos = result.response;
+        console.log(photos.results);
+        setPics(photos.results);
+      }
+    })
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <SearchBar {...{setSearchText, searchPhotos}} />
+      <CardList {...{pics}} />
     </div>
   );
 }
